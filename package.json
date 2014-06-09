@@ -1,0 +1,8 @@
+{
+  "name": "SimpleChat",
+  "version": "0.0.1",
+  "devDependencies": {
+    "express": "^4.4.1",
+    "socket.io": "^1.0.4"
+  }
+}
