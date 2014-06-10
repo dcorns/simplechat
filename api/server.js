@@ -11,35 +11,30 @@ server.listen(port, function () {
   console.log('Server Port: %d', port);
 });
 
-app.use(express.static(__dirname + '/app'));
+app.use(express.static(__dirname + '/../app'));
 
 var users = [];
 
 io.on('connection',function(socket){
+  console.log('client connected');
   socket.on('message', function(data){
-   socket.broadcast.emit('message',{
-     user: socket.user,
-     msg: data
-   });
+    console.dir(data);
+   socket.broadcast.emit('message',data);
+    socket.emit('message',data);
   });
   socket.on('addclient', function(data){
     socket.user = data;
     users.push(data);
-    socket.broadcast.emit('newuser', socket.user);
-  });
-
-  socket.on('typing', function () {
-    socket.broadcast.emit('typing', socket.user);
-  });
-
-  socket.on('nottyping', function () {
-    socket.broadcast.emit('nottyping', socket.username);
+    console.log(users);
+    socket.broadcast.emit('newuser', users);
+    socket.emit('newuser',users);
   });
 
   socket.on('disconnect', function () {
-    if (users.contains(socket.user)) {
-      users.splice(users.indexof(socket.user),1);
-      socket.broadcast.emit('usergone', socket.user);
+    console.log('disconnect');
+    if (users.indexOf(socket.user)) {
+      users.splice(users.indexOf(socket.user),1);
+      socket.broadcast.emit('usergone', users);
     }
   });
 
