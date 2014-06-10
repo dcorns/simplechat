@@ -2,9 +2,76 @@
 <html>
 <head lang="en">
     <meta charset="UTF-8">
-    <title></title>
+    <title>SimpleChat</title>
+    <link rel="stylesheet" href="style.css">
 </head>
 <body>
+<div class="typing">
+    <label id="inputlabel" for="userinput">Enter a nickname</label>
+    <input id="userinput"><button id="btn" onclick="setUser()">JoinChat</button>
+    <input id="txt" onchange="chat()">
+</div>
+<div class="userList"></div>
+<div class="messages"></div>
+<div class="joinchat"></div>
+<script src="https://code.jquery.com/jquery-1.10.2.min.js"></script>
+<script src="https://cdn.socket.io/socket.io-1.0.0.js"></script>
+<!--no InternetVersion-->
+<!--<script src="/socket.io/socket.io.js"></script>-->
+<script>
+    var users=[], user = '';
+    var socket = io();
+    $('#txt').hide();
 
+
+    function setUser() {
+        console.log('setuser');
+        //No jquery version
+        //var usertxt = document.getElementById('userinput');
+        //user = usertxt.value;
+        user = $('#userinput').val().trim();
+        $('#inputlabel').hide();
+        $('#btn').hide();
+        $('#userinput').hide();
+        $('#txt').show();
+        socket.emit('addclient', user);
+    }
+
+    socket.on('newuser', function(data){
+        console.log('newuser'+data);
+        users = data; //match server side list
+        writeUserList();
+    });
+
+    socket.on('message', function(data){
+        console.dir(data);
+        $('.messages').append(data.user+' says, '+data.msg+'</br>');
+    });
+
+    socket.on('usergone', function(data){
+        console.log('usergone'+data);
+        users = data;//match server side list
+        writeUserList();
+    });
+
+    var chat = (function() {
+        //no jquery version
+       // var msgtxt = document.getElementById('txt').value;
+       // var msg = msgtxt;
+        var msg = $('#txt').val();
+        $('#txt').val('');
+        socket.emit('message', {user: user, msg:msg});
+    });
+
+    var writeUserList = (function(){
+        var c=0;
+        $('.userList').empty();
+        while(c<users.length) {
+            $('.userList').append(users[c] + '</br>');
+            c++;
+        }
+    });
+
+</script>
 </body>
 </html>
